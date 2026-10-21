@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Conectar TikTok</title>
+<style>
+  :root { --bg: #f0f1f3; --ink: #0b0d10; --muted: #5c626c; --card: #fff; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0b0d10; --ink: #f0f1f3; --muted: #9aa0aa; --card: #16191e; } }
+  body { margin: 0; min-height: 100dvh; display: grid; place-items: center; background: var(--bg);
+         color: var(--ink); font: 16px/1.5 system-ui, sans-serif; padding: 16px; box-sizing: border-box; }
+  .card { background: var(--card); border-radius: 28px; padding: 32px; max-width: 520px; width: 100%;
+          box-shadow: 0 30px 60px -30px rgba(15, 23, 42, .25); }
+  h1 { font-size: 22px; margin: 0 0 8px; }
+  p { color: var(--muted); margin: 0 0 16px; }
+  code { display: block; word-break: break-all; background: var(--bg); padding: 14px; border-radius: 14px;
+         font-size: 14px; user-select: all; }
+  button { margin-top: 14px; border: 0; border-radius: 999px; padding: 12px 22px; background: var(--ink);
+           color: var(--bg); font: inherit; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1 id="t">Conectar TikTok</h1>
+  <p id="m">Esta página recibe el código cuando autorizas la publicación automática.</p>
+  <code id="c" hidden></code>
+  <button id="b" hidden>Copiar comando</button>
+</div>
+<script>
+  const q = new URLSearchParams(location.search);
+  const code = q.get("code"), handle = (q.get("state") || "CUENTA").replace(/[^a-z0-9_.]/gi, "");
+  const t = document.getElementById("t"), m = document.getElementById("m");
+  const c = document.getElementById("c"), b = document.getElementById("b");
+  if (q.get("error")) {
+    t.textContent = "No se conectó";
+    m.textContent = q.get("error_description") || q.get("error");
+  } else if (code) {
+    const cmd = `python3 ~/.claude/instagram/autopost/autopost.py tiktok code ${handle} ${code}`;
+    t.textContent = "Listo, falta un paso";
+    m.textContent = "Copia este comando y pégalo en la Terminal de tu Mac. El código vence en unos minutos.";
+    c.textContent = cmd; c.hidden = false; b.hidden = false;
+    b.onclick = () => navigator.clipboard.writeText(cmd).then(() => (b.textContent = "Copiado"));
+  }
+</script>
+</body>
+</html>
